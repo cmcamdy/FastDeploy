@@ -123,7 +123,7 @@ class GlmRotaryEmbedding:
         # cache_data is stored as uint16 but actually represents bfloat16 data.
         # Reinterpret bytes directly without any value conversion.
         cache_path = (
-            "../xvllm/zpy_log/sin_con_cache/cos_sin_cache_hs128_rd64_mp131072_base1000000_neox1_140308731441648.npy"
+            "/home/chenhuan09/FD/xpu_libs/glm/cos_sin_cache_hs128_rd64_mp131072_base1000000_neox1_140308731441648.npy"
         )
         cache_data = np.load(cache_path)
         cache_tensor = paddle.to_tensor(cache_data).view(paddle.bfloat16).reshape(rot_emb.shape)
