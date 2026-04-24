@@ -175,6 +175,19 @@ void set_ncluster(int num) {
   xpu_ctx->x_context()->set_ncluster(num);
 }
 
+void GetStopFlagsMulti(const paddle::Tensor &topk_ids,
+                       const paddle::Tensor &stop_flags,
+                       const paddle::Tensor &seq_lens,
+                       const paddle::Tensor &end_ids,
+                       const paddle::Tensor &next_tokens,
+                       const paddle::Tensor &token_ids_all,
+                       const paddle::Tensor &prompt_lens,
+                       const paddle::Tensor &step_idx,
+                       const paddle::Tensor &stop_seqs,
+                       const paddle::Tensor &stop_seqs_len,
+                       const paddle::Tensor &min_tokens,
+                       const bool beam_search);
+
 std::vector<paddle::Tensor> RmsNorm(
     const paddle::Tensor& x,
     const paddle::optional<paddle::Tensor>& bias,
@@ -568,12 +581,6 @@ std::vector<paddle::Tensor> GetPaddingOffset(
     const paddle::optional<paddle::Tensor>& seq_lens_encoder,
     const int64_t cpu_token_num);
 
-void GetStopFlagsMulti(const paddle::Tensor& topk_ids,
-                       const paddle::Tensor& stop_flags,
-                       const paddle::Tensor& seq_lens,
-                       const paddle::Tensor& end_ids,
-                       const paddle::Tensor& next_tokens,
-                       const bool beam_search);
 
 void RecoverDecodeTask(
     const paddle::Tensor& stop_flags,
@@ -1670,6 +1677,12 @@ PYBIND11_MODULE(fastdeploy_ops, m) {
         py::arg("seq_lens"),
         py::arg("end_ids"),
         py::arg("next_tokens"),
+        py::arg("token_ids_all"),
+        py::arg("prompt_lens"),
+        py::arg("step_idx"),
+        py::arg("stop_seqs"),
+        py::arg("stop_seqs_len"),
+        py::arg("min_tokens"),
         py::arg("beam_search"),
         "Set stop value multi ends function");
 

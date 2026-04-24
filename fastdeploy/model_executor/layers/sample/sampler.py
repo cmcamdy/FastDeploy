@@ -559,7 +559,7 @@ class Sampler(nn.Layer):
         if envs.FD_DETERMINISTIC_LOG_MODE:
             _record_logits_diagnostic(logits, tag="post_penalty_logits", probs=probs)
 
-        probs = min_p_sampling(probs, sampling_metadata.min_p, sampling_metadata.min_p_list)
+        # probs = min_p_sampling(probs, sampling_metadata.min_p, sampling_metadata.min_p_list)
         _, next_tokens = top_k_top_p_sampling(
             probs,
             sampling_metadata.top_p,
