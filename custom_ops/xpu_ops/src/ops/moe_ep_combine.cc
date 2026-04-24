@@ -46,7 +46,7 @@ std::vector<paddle::Tensor> MoeEPCombineKernel(
         xpu_ctx->x_context(),
         reinterpret_cast<const XPU_T*>(ffn_out.data<T>()),
         moe_index.data<int32_t>(),
-        reinterpret_cast<const XPU_T*>(weights.data<T>()),
+        weights.data<float>(),
         dequant_score,
         reinterpret_cast<XPU_T*>(combined_out.mutable_data<T>()),
         recv_token_num,

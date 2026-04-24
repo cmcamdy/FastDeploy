@@ -17,6 +17,7 @@
 import math
 from typing import Optional, Tuple
 
+import numpy as np
 import paddle
 from paddle import nn
 
@@ -97,16 +98,37 @@ class GlmRotaryEmbedding:
             freqs = paddle.einsum("ij,k->ijk", position_ids.cast("float32"), inv_freq)
         if current_platform.is_xpu():
             # shape: [B, S, D]
-            rot_emb = paddle.zeros((2, bsz, max_seq_len, 1, self.rotary_dim), dtype="float32")
-            emb = paddle.concat([freqs, freqs], axis=-1).reshape((bsz, max_seq_len, self.rotary_dim))
+            # rot_emb = paddle.zeros((2, bsz, max_seq_len, 1, self.rotary_dim), dtype="float32")
+            # emb = paddle.concat([freqs, freqs], axis=-1).reshape((bsz, max_seq_len, self.rotary_dim))
+
+            rot_emb = paddle.zeros((max_seq_len, self.rotary_dim), dtype="float32")
+            emb = paddle.stack([freqs], axis=-1).reshape((bsz, max_seq_len, self.rotary_dim // 2))
+
         else:
             # shape: [B, S, D/2]
             rot_emb = paddle.zeros((2, bsz, max_seq_len, 1, self.rotary_dim // 2), dtype="float32")
             emb = paddle.stack([freqs], axis=-1).reshape((bsz, max_seq_len, self.rotary_dim // 2))
         # shape: [B, S, 1, D]
-        emb = paddle.unsqueeze(emb, 2)
-        rot_emb[0] = paddle.cos(emb)
-        rot_emb[1] = paddle.sin(emb)
+        # emb = paddle.unsqueeze(emb, 2)
+        # rot_emb[0] = paddle.cos(emb)
+        # rot_emb[1] = paddle.sin(emb)
+
+        emb_c = paddle.cos(emb)
+        emb_s = paddle.sin(emb)
+        rot_emb = paddle.concat([emb_c, emb_s], axis=-1).reshape(2, bsz, max_seq_len, 1, self.rotary_dim // 2)
+
+        rot_emb = paddle.cast(rot_emb, dtype="bfloat16")
+
+        # Load pre-computed cos/sin cache from numpy file.
+        # cache_data is stored as uint16 but actually represents bfloat16 data.
+        # Reinterpret bytes directly without any value conversion.
+        cache_path = (
+            "../xvllm/zpy_log/sin_con_cache/cos_sin_cache_hs128_rd64_mp131072_base1000000_neox1_140308731441648.npy"
+        )
+        cache_data = np.load(cache_path)
+        cache_tensor = paddle.to_tensor(cache_data).view(paddle.bfloat16).reshape(rot_emb.shape)
+        paddle.assign(cache_tensor, rot_emb)
+
         return rot_emb
 
 

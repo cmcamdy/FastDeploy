@@ -358,11 +358,10 @@ class XPUMoEMethod(MoEMethodBase):
             x.shape[0] * layer.top_k,
         )
 
-        topk_weights_bf16 = topk_weights.astype("bfloat16")
         tmp_ffn_out = ep_moe_expert_combine(
             ffn_out,
             permute_indices_per_token,
-            topk_weights_bf16,
+            topk_weights,
             permute_indices_per_token.shape[0],
             ffn_out.shape[0],
             ffn_out.shape[1],
@@ -482,11 +481,10 @@ class XPUMoEMethod(MoEMethodBase):
             token_all_num,
         )
 
-        recv_topk_weights_bf16 = recv_topk_weights.astype("bfloat16")
         tmp_ffn_out = ep_moe_expert_combine(
             ffn_out,
             permute_indices_per_token,
-            recv_topk_weights_bf16,
+            recv_topk_weights,
             permute_indices_per_token.shape[0],
             ffn_out.shape[0],
             ffn_out.shape[1],

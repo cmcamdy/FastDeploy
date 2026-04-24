@@ -1618,6 +1618,11 @@ class XPUModelRunner(ModelRunnerBase):
                 return None
 
             # 2. Padding inputs for cuda grph
+            if not is_dummy_run:
+                if self.share_inputs["input_ids"][0][0].item() == 104234 or True:
+                    # paddle.device.xpu.set_debug_level(0xB1)
+                    self.sampling_metadata.need_print = True
+                    # pass
 
             model_inputs = {}
             model_inputs["ids_remove_padding"] = self.share_inputs["ids_remove_padding"]
